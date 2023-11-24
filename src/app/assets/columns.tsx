@@ -1,5 +1,6 @@
 'use client';
 
+import { formatCurrency } from '@coingecko/cryptoformat';
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 
@@ -15,10 +16,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 
-import { Asset, Provider, Transaction } from '@/db/schema';
-import { formatCurrency } from '@coingecko/cryptoformat';
+import { Asset } from '@/db/schema';
 
-export const columns: ColumnDef<Transaction>[] = [
+export const columns: ColumnDef<Asset>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -42,31 +42,32 @@ export const columns: ColumnDef<Transaction>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'id',
-    header: 'ID',
+    accessorKey: 'name',
+    header: 'Name',
+  },
+  {
+    accessorKey: 'ticker',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Symbol
+          <ArrowUpDown className="h-4 w-4" />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: 'type',
     header: 'Type',
     cell: ({ row }) => {
       const type = String(row.getValue('type'));
-      return <Badge>{type}</Badge>;
-    },
-  },
-  {
-    accessorKey: 'asset',
-    header: 'Asset',
-    cell: ({ row }) => {
-      const asset = row.getValue('asset') as Asset;
-      return <Button variant="ghost">{asset.name}</Button>;
-    },
-  },
-  {
-    accessorKey: 'provider',
-    header: 'Provider',
-    cell: ({ row }) => {
-      const provider = row.getValue('provider') as Provider;
-      return <Button variant="ghost">{provider.name}</Button>;
+      const computedVariantStyle =
+        type === 'crypto' ? 'outline' : 'destructive';
+
+      return <Badge variant={computedVariantStyle}>{type}</Badge>;
     },
   },
   {
@@ -74,22 +75,8 @@ export const columns: ColumnDef<Transaction>[] = [
     header: () => <div className="text-right">Amount</div>,
     cell: ({ row }) => {
       const amount = Number(row.getValue('amount'));
-      const asset = row.getValue('asset') as Asset;
-      const ticker = asset.ticker;
+      const ticker = row.getValue('ticker') as string;
       const formatted = formatCurrency(amount, ticker, 'fr');
-
-      return <div className="text-right font-medium">{formatted}</div>;
-    },
-  },
-  {
-    accessorKey: 'price_per_unit_usd',
-    header: () => <div className="text-right">Price</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue('price_per_unit_usd'));
-      const formatted = new Intl.NumberFormat('fr-FR', {
-        style: 'currency',
-        currency: 'EUR',
-      }).format(amount);
 
       return <div className="text-right font-medium">{formatted}</div>;
     },
@@ -97,7 +84,7 @@ export const columns: ColumnDef<Transaction>[] = [
   {
     id: 'actions',
     cell: ({ row }) => {
-      const txn = row.original;
+      const asset = row.original;
 
       return (
         <DropdownMenu>
@@ -110,9 +97,9 @@ export const columns: ColumnDef<Transaction>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(String(txn.id))}
+              onClick={() => navigator.clipboard.writeText(asset.name)}
             >
-              Copy txn ID
+              Copy asset Name
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>View customer</DropdownMenuItem>

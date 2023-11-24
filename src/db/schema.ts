@@ -1,5 +1,6 @@
 import {
   decimal,
+  integer,
   pgTable,
   serial,
   text,
@@ -29,10 +30,10 @@ export type Provider = typeof providers.$inferSelect;
 
 export const transactions = pgTable('transactions', {
   id: serial('id').primaryKey(),
-  asset_id: serial('asset_id')
+  asset_id: integer('asset_id')
     .references(() => assets.id)
     .notNull(),
-  provider_id: serial('provider_id')
+  provider_id: integer('provider_id')
     .references(() => providers.id)
     .notNull(),
   type: text('type', {

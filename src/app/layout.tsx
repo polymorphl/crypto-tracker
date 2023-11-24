@@ -22,6 +22,14 @@ const sidebarNavItems = [
     href: '/',
   },
   {
+    title: 'Assets',
+    href: '/assets',
+  },
+  {
+    title: 'Providers',
+    href: '/providers',
+  },
+  {
     title: 'Transactions',
     href: '/transactions',
   },
@@ -51,7 +59,7 @@ export default function RootLayout({
               <aside className="-mx-4 lg:w-1/5">
                 <SidebarNav items={sidebarNavItems}></SidebarNav>
               </aside>
-              <div className="flex-1 lg:max-w-2xl">{children}</div>
+              <div className="flex-1 lg:max-w-4xl">{children}</div>
             </div>
           </div>
         </ThemeProvider>

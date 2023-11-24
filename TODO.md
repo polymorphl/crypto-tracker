@@ -1,16 +1,17 @@
-<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
-
 # TODO
 
-- Export Notion Database
+- Export Notion Database (CSV)
 
 # DOING
 
-- Define DB Schema
+- Implement pagination
 - Continue the YT video about Drizzle
 
 # DONE
 
+- Implement Read in UI
+- Continue DB Schema
+- Base Schema + db:seed system
 - Create a Github repository
 - Migrate the project to pnpm
 - Setup Drizzle ORM

@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@coingecko/cryptoformat':
+    specifier: ^0.7.0
+    version: 0.7.0
   '@radix-ui/react-checkbox':
     specifier: ^1.0.4
     version: 1.0.4(@types/react-dom@18.2.15)(@types/react@18.2.37)(react-dom@18.2.0)(react@18.2.0)
@@ -162,6 +165,11 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@coingecko/cryptoformat@0.7.0:
+    resolution: {integrity: sha512-X/CWInfbuTI6qR7f5U93ExRHTqcGxAXlvVNH/jLgN6BhtV+zm1QRwNG8q4AYB6cpbNg/BZAVC+CIxXOt5YOIBg==}
+    engines: {node: '>=10'}
+    dev: false
 
   /@drizzle-team/studio@0.0.27:
     resolution: {integrity: sha512-vkgflb8g/7WCdVCuxWE6tCzjZB0q4lLIK6mwH1aleNRqIGOhEWq/E2I8HmKquz1v0GRDHLFd19ZzrVSITt2Uqg==}

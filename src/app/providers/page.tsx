@@ -1,10 +1,9 @@
-import { getTransactions } from '@/data/transactions';
+import { getProviders } from '@/data/providers';
 import { columns } from './columns';
 import { DataTable } from './data-table';
 
-export default async function TransactionsPage() {
-  const data = await getTransactions();
-  console.log({ data });
+export default async function AssetsPage() {
+  const data = await getProviders();
 
   return (
     <div className="container mx-auto py-10">
