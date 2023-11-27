@@ -1,6 +1,7 @@
 import 'server-only';
 
-import { eq } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
+import { PgSelect, PgSelectQueryBuilder } from 'drizzle-orm/pg-core';
 
 import { db } from '@/db';
 import {
@@ -79,12 +80,36 @@ function toDtoMapper(
   }
 }
 
-export async function getTransactions(): Promise<TransactionDto[]> {
-  const rows = await db
-    .select()
-    .from(transactions)
+function withPagination<T extends PgSelect>(
+  qb: T,
+  page: number,
+  pageSize: number = 20
+) {
+  return qb.limit(pageSize).offset(page * pageSize);
+}
+
+function withRelations<T extends PgSelectQueryBuilder>(qb: T) {
+  return qb
     .leftJoin(assets, eq(transactions.asset_id, assets.id))
     .leftJoin(providers, eq(transactions.provider_id, providers.id));
+}
+
+function getQuery() {
+  return db
+    .select()
+    .from(transactions)
+    .orderBy(asc(transactions.created_at))
+    .$dynamic();
+}
+
+// function get
+
+export async function getTransactions(page = 1): Promise<TransactionDto[]> {
+  let query = getQuery();
+
+  const rows = await withPagination(withRelations(query), page);
+
+  console.log(rows);
 
   const result = rows.reduce((accArr, row) => {
     const txn = row.transactions;

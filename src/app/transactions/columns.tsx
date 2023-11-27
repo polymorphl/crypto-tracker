@@ -1,10 +1,9 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,53 +16,48 @@ import { Badge } from '@/components/ui/badge';
 
 import { Asset, Provider, Transaction } from '@/db/schema';
 import { formatCurrency } from '@coingecko/cryptoformat';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export const columns: ColumnDef<Transaction>[] = [
-  {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
   {
     accessorKey: 'id',
     header: 'ID',
   },
   {
     accessorKey: 'type',
-    header: 'Type',
+    header: () => <div className="text-center">Type</div>,
     cell: ({ row }) => {
       const type = String(row.getValue('type'));
-      return <Badge>{type}</Badge>;
+      return <Badge>{type.toUpperCase()}</Badge>;
     },
   },
   {
     accessorKey: 'asset',
-    header: 'Asset',
+    header: () => <div className="text-center">Asset</div>,
     cell: ({ row }) => {
       const asset = row.getValue('asset') as Asset;
-      return <Button variant="ghost">{asset.name}</Button>;
+      return (
+        <Link href={`/assets/${asset.ticker}`}>
+          <Button variant="ghost">
+            {asset.icon && (
+              <Image
+                src={asset.icon}
+                alt={`${asset.name} icon`}
+                width={64}
+                height={64}
+                className="w-4 h-4 mr-2"
+              />
+            )}
+            {asset.name}
+          </Button>
+        </Link>
+      );
     },
   },
   {
     accessorKey: 'provider',
-    header: 'Provider',
+    header: () => <div className="text-center">Provider</div>,
     cell: ({ row }) => {
       const provider = row.getValue('provider') as Provider;
       return <Button variant="ghost">{provider.name}</Button>;
@@ -71,7 +65,7 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     accessorKey: 'amount',
-    header: () => <div className="text-right">Amount</div>,
+    header: () => <div className="text-center">Amount</div>,
     cell: ({ row }) => {
       const amount = Number(row.getValue('amount'));
       const asset = row.getValue('asset') as Asset;
@@ -83,7 +77,7 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     accessorKey: 'price_per_unit_usd',
-    header: () => <div className="text-right">Price</div>,
+    header: () => <div className="text-center">Price</div>,
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue('price_per_unit_usd'));
       const formatted = new Intl.NumberFormat('fr-FR', {

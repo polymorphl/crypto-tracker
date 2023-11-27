@@ -9,11 +9,13 @@ export type ProviderDto = {
   id: number;
   name: string;
   type: 'cold-wallet' | 'hot-wallet';
+  icon: string | null;
 };
 
 export type CreateProviderDto = {
   name: string;
   type: 'cold-wallet' | 'hot-wallet';
+  icon: string | null;
 };
 
 export type ProviderId = number;
@@ -23,6 +25,7 @@ function toDtoMapper(item: Provider) {
     id: item.id,
     name: item.name,
     type: item.type,
+    icon: item.icon,
   };
 }
 

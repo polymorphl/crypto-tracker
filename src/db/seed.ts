@@ -2,6 +2,8 @@ import 'dotenv/config';
 import { sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
+import { faker } from '@faker-js/faker';
+
 import { Asset, Provider, assets, providers, transactions } from './schema';
 
 if (!('DATABASE_URL' in process.env))
@@ -73,13 +75,15 @@ const seedTransactions = async (db: any) => {
     (asset: any) => asset.ticker === 'BTC'
   ) as Asset;
 
-  transactionsData.push({
-    type: 'buy',
-    asset_id: bitcoin.id,
-    provider_id: ledger.id,
-    amount: '0.0001',
-    price_per_unit_usd: '10000',
-  });
+  for (let i = 0; i < 100; i++) {
+    transactionsData.push({
+      type: 'buy',
+      asset_id: bitcoin.id,
+      provider_id: ledger.id,
+      amount: faker.finance.amount(0.01, 0.02, 8),
+      price_per_unit_usd: faker.finance.amount(10000, 20000, 8),
+    });
+  }
 
   await db.insert(transactions).values(transactionsData);
 };

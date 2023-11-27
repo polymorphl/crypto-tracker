@@ -17,6 +17,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 
 import { Asset } from '@/db/schema';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export const columns: ColumnDef<Asset>[] = [
   {
@@ -44,6 +46,25 @@ export const columns: ColumnDef<Asset>[] = [
   {
     accessorKey: 'name',
     header: 'Name',
+    cell: ({ row }) => {
+      const asset = row.original;
+      return (
+        <Link href={`/assets/${asset.ticker}`}>
+          <Button variant="ghost">
+            {asset.icon && (
+              <Image
+                src={asset.icon}
+                alt={`${asset.name} icon`}
+                width={64}
+                height={64}
+                className="w-4 h-4 mr-2"
+              />
+            )}
+            {asset.name}
+          </Button>
+        </Link>
+      );
+    },
   },
   {
     accessorKey: 'ticker',

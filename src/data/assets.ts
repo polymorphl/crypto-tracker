@@ -62,7 +62,7 @@ export async function getAssetByTicker(
   ticker: string
 ): Promise<AssetDto | undefined> {
   const foundAsset = await db.query.assets.findFirst({
-    where: eq(assets.ticker, ticker),
+    where: eq(assets.ticker, ticker.toUpperCase()),
   });
 
   if (!foundAsset) {

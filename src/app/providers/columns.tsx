@@ -58,7 +58,7 @@ export const columns: ColumnDef<Provider>[] = [
   {
     id: 'actions',
     cell: ({ row }) => {
-      const asset = row.original;
+      const provider = row.original;
 
       return (
         <DropdownMenu>
@@ -71,7 +71,7 @@ export const columns: ColumnDef<Provider>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(asset.name)}
+              onClick={() => navigator.clipboard.writeText(provider.name)}
             >
               Copy asset Name
             </DropdownMenuItem>

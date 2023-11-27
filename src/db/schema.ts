@@ -24,6 +24,7 @@ export const providers = pgTable('providers', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 256 }).notNull(),
   type: text('type', { enum: ['cold-wallet', 'hot-wallet'] }).notNull(),
+  icon: varchar('icon', { length: 256 }),
 });
 
 export type Provider = typeof providers.$inferSelect;
