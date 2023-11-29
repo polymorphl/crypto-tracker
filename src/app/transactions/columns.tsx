@@ -26,7 +26,7 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     accessorKey: 'type',
-    header: () => <div className="text-center">Type</div>,
+    header: () => <div>Type</div>,
     cell: ({ row }) => {
       const type = String(row.getValue('type'));
       return <Badge>{type.toUpperCase()}</Badge>;
@@ -34,7 +34,7 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     accessorKey: 'asset',
-    header: () => <div className="text-center">Asset</div>,
+    header: () => <div className="px-4">Asset</div>,
     cell: ({ row }) => {
       const asset = row.getValue('asset') as Asset;
       return (
@@ -57,27 +57,42 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     accessorKey: 'provider',
-    header: () => <div className="text-center">Provider</div>,
+    header: () => <div className="px-4">Provider</div>,
     cell: ({ row }) => {
       const provider = row.getValue('provider') as Provider;
-      return <Button variant="ghost">{provider.name}</Button>;
+      return (
+        <Link href={`/providers/${provider.slug}`}>
+          <Button variant="ghost">
+            {provider.icon && (
+              <Image
+                src={provider.icon}
+                alt={`${provider.name} icon`}
+                width={64}
+                height={64}
+                className="w-4 h-4 mr-2"
+              />
+            )}
+            {provider.name}
+          </Button>
+        </Link>
+      );
     },
   },
   {
     accessorKey: 'amount',
-    header: () => <div className="text-center">Amount</div>,
+    header: () => <div>Amount</div>,
     cell: ({ row }) => {
       const amount = Number(row.getValue('amount'));
       const asset = row.getValue('asset') as Asset;
       const ticker = asset.ticker;
       const formatted = formatCurrency(amount, ticker, 'fr');
 
-      return <div className="text-right font-medium">{formatted}</div>;
+      return <div className="font-medium">{formatted}</div>;
     },
   },
   {
     accessorKey: 'price_per_unit_usd',
-    header: () => <div className="text-center">Price</div>,
+    header: () => <div>Price</div>,
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue('price_per_unit_usd'));
       const formatted = new Intl.NumberFormat('fr-FR', {
@@ -85,7 +100,7 @@ export const columns: ColumnDef<Transaction>[] = [
         currency: 'EUR',
       }).format(amount);
 
-      return <div className="text-right font-medium">{formatted}</div>;
+      return <div className="font-medium">{formatted}</div>;
     },
   },
   {

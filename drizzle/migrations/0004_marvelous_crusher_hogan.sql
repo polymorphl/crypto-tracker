@@ -1,0 +1,1 @@
+ALTER TABLE "providers" ADD COLUMN "slug" varchar(256) NOT NULL;

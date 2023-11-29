@@ -42,6 +42,14 @@ const seedAssets = async (db: any) => {
     price: '0',
     icon: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',
   });
+  assetsData.push({
+    name: 'Ethereum',
+    ticker: 'ETH',
+    type: 'crypto',
+    amount: '0',
+    price: '0',
+    icon: 'https://assets.coingecko.com/coins/images/279/standard/ethereum.png',
+  });
 
   await db.insert(assets).values(assetsData);
 };
@@ -50,15 +58,21 @@ const seedProviders = async (db: any) => {
   const providersData: (typeof providers.$inferInsert)[] = [];
   providersData.push({
     name: 'Binance',
+    slug: 'binance',
     type: 'hot-wallet',
+    icon: 'https://upload.wikimedia.org/wikipedia/commons/5/57/Binance_Logo.png',
   });
   providersData.push({
     name: 'Coinbase',
+    slug: 'coinbase',
     type: 'hot-wallet',
+    icon: 'https://companieslogo.com/img/orig/COIN-a63dbab3.png',
   });
   providersData.push({
     name: 'Ledger Nano X',
+    slug: 'ledger-nano-x',
     type: 'cold-wallet',
+    icon: 'https://www.ledger.com/wp-content/uploads/2023/08/Ledger-logo-696.png',
   });
 
   await db.insert(providers).values(providersData);
@@ -71,15 +85,23 @@ const seedTransactions = async (db: any) => {
   const ledger = providersData.find(
     (provider: any) => provider.name === 'Ledger Nano X'
   ) as Provider;
-  const bitcoin = assetsData.find(
-    (asset: any) => asset.ticker === 'BTC'
-  ) as Asset;
+  const binance = providersData.find(
+    (provider: any) => provider.name === 'Binance'
+  ) as Provider;
+  const coinbase = providersData.find(
+    (provider: any) => provider.name === 'Coinbase'
+  ) as Provider;
+  const allProviders: Provider[] = [ledger, binance, coinbase];
+  const btc = assetsData.find((asset: any) => asset.ticker === 'BTC') as Asset;
+  const eth = assetsData.find((asset: any) => asset.ticker === 'ETH') as Asset;
 
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 50; i++) {
+    const rand = faker.helpers.rangeToNumber({ min: 0, max: 5 });
+    const randProvider = Math.floor(Math.random() * allProviders.length);
     transactionsData.push({
       type: 'buy',
-      asset_id: bitcoin.id,
-      provider_id: ledger.id,
+      asset_id: rand % 2 ? btc.id : eth.id,
+      provider_id: allProviders[randProvider].id,
       amount: faker.finance.amount(0.01, 0.02, 8),
       price_per_unit_usd: faker.finance.amount(10000, 20000, 8),
     });

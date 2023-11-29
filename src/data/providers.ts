@@ -8,12 +8,14 @@ import { Provider, providers } from '@/db/schema';
 export type ProviderDto = {
   id: number;
   name: string;
+  slug: string;
   type: 'cold-wallet' | 'hot-wallet';
   icon: string | null;
 };
 
 export type CreateProviderDto = {
   name: string;
+  slug: string;
   type: 'cold-wallet' | 'hot-wallet';
   icon: string | null;
 };
@@ -24,6 +26,7 @@ function toDtoMapper(item: Provider) {
   return {
     id: item.id,
     name: item.name,
+    slug: item.slug,
     type: item.type,
     icon: item.icon,
   };
@@ -40,6 +43,20 @@ export async function getProviderById(
 ): Promise<ProviderDto | undefined> {
   const foundProvider = await db.query.providers.findFirst({
     where: eq(providers.id, providerId),
+  });
+
+  if (!foundProvider) {
+    return undefined;
+  }
+
+  return toDtoMapper(foundProvider);
+}
+
+export async function getProviderBySlug(
+  slug: string
+): Promise<ProviderDto | undefined> {
+  const foundProvider = await db.query.providers.findFirst({
+    where: eq(providers.slug, slug),
   });
 
   if (!foundProvider) {

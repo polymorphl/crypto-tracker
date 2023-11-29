@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { asc, eq } from 'drizzle-orm';
+import { asc, eq, sql } from 'drizzle-orm';
 import { PgSelect, PgSelectQueryBuilder } from 'drizzle-orm/pg-core';
 
 import { db } from '@/db';
@@ -12,6 +12,8 @@ import {
   providers,
   transactions,
 } from '@/db/schema';
+import { getAssetByTicker } from './assets';
+import { getProviderBySlug } from './providers';
 
 export type TransactionDto = {
   id: number;
@@ -102,16 +104,12 @@ function getQuery() {
     .$dynamic();
 }
 
-// function get
+function countTransactions() {
+  return db.select({ count: sql<number>`COUNT(*)` }).from(transactions);
+}
 
-export async function getTransactions(page = 1): Promise<TransactionDto[]> {
-  let query = getQuery();
-
-  const rows = await withPagination(withRelations(query), page);
-
-  console.log(rows);
-
-  const result = rows.reduce((accArr, row) => {
+function reduceRowsToDto(rows: any[]): TransactionDto[] {
+  return rows.reduce((accArr, row) => {
     const txn = row.transactions;
     const asset = row.assets;
     const provider = row.providers;
@@ -129,8 +127,74 @@ export async function getTransactions(page = 1): Promise<TransactionDto[]> {
     accArr.push(updatedAcc);
     return accArr;
   }, [] as TransactionDto[]);
+}
 
-  return result;
+type TransactionsByTicker = {
+  data: TransactionDto[];
+  count: number;
+};
+
+export async function getTransactionsByTicker({
+  page = 0,
+  ticker,
+}: {
+  page?: number;
+  ticker: string;
+}): Promise<TransactionsByTicker> {
+  let query = getQuery();
+
+  const asset = await getAssetByTicker(ticker);
+
+  if (!asset) {
+    return { data: [], count: 0 };
+  }
+
+  query = query.where(eq(transactions.asset_id, asset.id));
+
+  const [rows, [{ count }]] = await Promise.all([
+    withPagination(withRelations(query), page),
+    countTransactions(),
+  ]);
+
+  return { data: reduceRowsToDto(rows), count };
+}
+
+export async function getTransactionsByProvider({
+  page = 0,
+  slug,
+}: {
+  page?: number;
+  slug: string;
+}): Promise<TransactionsByTicker> {
+  let query = getQuery();
+
+  const provider = await getProviderBySlug(slug);
+
+  if (!provider) {
+    return { data: [], count: 0 };
+  }
+
+  query = query.where(eq(transactions.provider_id, provider.id));
+
+  const [rows, [{ count }]] = await Promise.all([
+    withPagination(withRelations(query), page),
+    countTransactions(),
+  ]);
+
+  return { data: reduceRowsToDto(rows), count };
+}
+
+export async function getTransactions(page = 1): Promise<TransactionsByTicker> {
+  let query = getQuery();
+
+  const [rows, [{ count }]] = await Promise.all([
+    withPagination(withRelations(query), page),
+    countTransactions(),
+  ]);
+
+  // console.log({ rows, count });
+
+  return { data: reduceRowsToDto(rows), count };
 }
 
 export async function getTransactionById(

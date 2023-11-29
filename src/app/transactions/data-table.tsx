@@ -34,18 +34,22 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  count?: number;
+  visibleColumns?: {};
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  count,
+  visibleColumns = {},
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>(visibleColumns);
 
   const table = useReactTable({
     data,
@@ -67,14 +71,16 @@ export function DataTable<TData, TValue>({
   return (
     <div>
       <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter asset..."
-          value={(table.getColumn('asset')?.getFilterValue() as string) ?? ''}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            table.getColumn('asset')?.setFilterValue(event.target.value);
-          }}
-          className="max-w-sm"
-        />
+        {columnVisibility.asset ?? (
+          <Input
+            placeholder="Filter asset..."
+            value={(table.getColumn('asset')?.getFilterValue() as string) ?? ''}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              table.getColumn('asset')?.setFilterValue(event.target.value);
+            }}
+            className="max-w-sm"
+          />
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter as FontSans } from 'next/font/google';
 
-import { ThemeProvider } from '@/components/theme-provider';
-import { SidebarNav } from '@/components/layout/sidebar';
+import { ThemeProvider } from '@/app/theme-provider';
+import Navbar from '@/components/layout/navbar';
 import './globals.css';
 
 import { cn } from '@/lib/utils';
@@ -19,19 +19,19 @@ export const metadata: Metadata = {
 const sidebarNavItems = [
   {
     title: 'Home',
-    href: '/',
+    path: '/',
   },
   {
     title: 'Assets',
-    href: '/assets',
+    path: '/assets',
   },
   {
     title: 'Providers',
-    href: '/providers',
+    path: '/providers',
   },
   {
     title: 'Transactions',
-    href: '/transactions',
+    path: '/transactions',
   },
 ];
 
@@ -54,12 +54,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="hidden space-y-6 p-10 pb-16 md:block">
+          <Navbar items={sidebarNavItems} />
+          <div className="space-y-6 p-10 pb-16 md:block">
             <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
-              <aside className="-mx-4 lg:w-1/5">
-                <SidebarNav items={sidebarNavItems}></SidebarNav>
-              </aside>
-              <div className="flex-1 lg:max-w-4xl">{children}</div>
+              <div className="flex-1">{children}</div>
             </div>
           </div>
         </ThemeProvider>
