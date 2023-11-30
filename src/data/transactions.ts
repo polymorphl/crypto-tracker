@@ -45,6 +45,15 @@ type TransactionWithRelations = Transaction & {
   provider: Provider;
 };
 
+type PaginatedResults = {
+  data: TransactionDto[];
+  count: number;
+};
+
+type PaginatedResultsWithTotalAmount = PaginatedResults & {
+  total_amount: number;
+};
+
 function mapCommonProperties(
   transaction: Transaction | Partial<TransactionWithRelations>
 ) {
@@ -129,34 +138,42 @@ function reduceRowsToDto(rows: any[]): TransactionDto[] {
   }, [] as TransactionDto[]);
 }
 
-type TransactionsByTicker = {
-  data: TransactionDto[];
-  count: number;
-};
-
 export async function getTransactionsByTicker({
   page = 0,
   ticker,
 }: {
   page?: number;
   ticker: string;
-}): Promise<TransactionsByTicker> {
+}): Promise<PaginatedResultsWithTotalAmount> {
   let query = getQuery();
 
   const asset = await getAssetByTicker(ticker);
 
   if (!asset) {
-    return { data: [], count: 0 };
+    return { data: [], count: 0, total_amount: 0 };
   }
 
   query = query.where(eq(transactions.asset_id, asset.id));
 
-  const [rows, [{ count }]] = await Promise.all([
+  const [rows, [{ count }], [{ total_amount }]] = await Promise.all([
     withPagination(withRelations(query), page),
     countTransactions(),
+    getTransactionsAmountForAssetId(asset.id),
   ]);
 
-  return { data: reduceRowsToDto(rows), count };
+  return { data: reduceRowsToDto(rows), count, total_amount };
+}
+
+async function getTransactionsAmountForAssetId(id: number) {
+  const result = await db
+    .select({
+      total_amount: sql<number>`COALESCE(SUM(transactions.amount), 0)`,
+    })
+    .from(transactions)
+    .where(eq(transactions.asset_id, id))
+    .execute();
+
+  return result;
 }
 
 export async function getTransactionsByProvider({
@@ -165,7 +182,7 @@ export async function getTransactionsByProvider({
 }: {
   page?: number;
   slug: string;
-}): Promise<TransactionsByTicker> {
+}): Promise<PaginatedResults> {
   let query = getQuery();
 
   const provider = await getProviderBySlug(slug);
@@ -184,15 +201,13 @@ export async function getTransactionsByProvider({
   return { data: reduceRowsToDto(rows), count };
 }
 
-export async function getTransactions(page = 1): Promise<TransactionsByTicker> {
+export async function getTransactions(page = 1): Promise<PaginatedResults> {
   let query = getQuery();
 
   const [rows, [{ count }]] = await Promise.all([
     withPagination(withRelations(query), page),
     countTransactions(),
   ]);
-
-  // console.log({ rows, count });
 
   return { data: reduceRowsToDto(rows), count };
 }

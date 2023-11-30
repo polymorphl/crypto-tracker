@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@coingecko/cryptoformat": "^0.7.0",
+    "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-checkbox": "^1.0.4",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-slot": "^1.0.2",

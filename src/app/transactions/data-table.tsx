@@ -72,14 +72,36 @@ export function DataTable<TData, TValue>({
     <div>
       <div className="flex items-center py-4">
         {columnVisibility.asset ?? (
-          <Input
-            placeholder="Filter asset..."
-            value={(table.getColumn('asset')?.getFilterValue() as string) ?? ''}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-              table.getColumn('asset')?.setFilterValue(event.target.value);
-            }}
-            className="max-w-sm"
-          />
+          <div className="max-w-sm mr-4">
+            <Input
+              placeholder="Filter asset..."
+              // type="search"
+              value={
+                (table.getColumn('asset')?.getFilterValue() as string) ?? ''
+              }
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                // console.log('test', table.getColumn('asset'));
+                table.getColumn('asset')?.setFilterValue(event.target.value);
+              }}
+              // className="max-w-sm"
+            />
+          </div>
+        )}
+        {columnVisibility.provider ?? (
+          <div className="max-w-sm mr-4">
+            <Input
+              placeholder="Filter provider..."
+              type="search"
+              value={
+                (table.getColumn('provider')?.getFilterValue() as string) ?? ''
+              }
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                // console.log('test', table.getColumn('asset'));
+                table.getColumn('provider')?.setFilterValue(event.target.value);
+              }}
+              className="max-w-sm"
+            />
+          </div>
         )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

@@ -2,6 +2,8 @@ import { getAssetByTicker } from '@/data/assets';
 import { getTransactionsByTicker } from '@/data/transactions';
 import { columns } from '@/app/transactions/columns';
 import { DataTable } from '@/app/transactions/data-table';
+import AssetCard from '@/components/core/AssetCard';
+
 export default async function AssetPage({
   params,
 }: {
@@ -9,16 +11,18 @@ export default async function AssetPage({
 }) {
   let page = 0;
   const assetData = await getAssetByTicker(params.ticker as string);
-  const { data, count } = await getTransactionsByTicker({
+  if (!assetData) {
+    return <div>Asset not found</div>;
+  }
+
+  const { data, count, total_amount } = await getTransactionsByTicker({
     page,
     ticker: params.ticker,
   });
 
-  // console.log({ data });
-
   return (
-    <div className="container mx-auto py-10">
-      <pre>{JSON.stringify(assetData, null, 2)}</pre>
+    <div className="container mx-auto py-5">
+      <AssetCard data={assetData} price={37000} total={total_amount} />
       <DataTable
         columns={columns}
         data={data}

@@ -16,7 +16,7 @@ export default async function ProviderPage({
   });
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-5">
       <pre>{JSON.stringify(providerData, null, 2)}</pre>
       <DataTable
         columns={columns}

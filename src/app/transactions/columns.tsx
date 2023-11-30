@@ -18,8 +18,9 @@ import { Asset, Provider, Transaction } from '@/db/schema';
 import { formatCurrency } from '@coingecko/cryptoformat';
 import Image from 'next/image';
 import Link from 'next/link';
+import { TransactionDto } from '@/data/transactions';
 
-export const columns: ColumnDef<Transaction>[] = [
+export const columns: ColumnDef<TransactionDto>[] = [
   {
     accessorKey: 'id',
     header: 'ID',
@@ -34,9 +35,10 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     accessorKey: 'asset',
+    accessorFn: (row) => row.asset?.name || row.asset?.ticker,
     header: () => <div className="px-4">Asset</div>,
     cell: ({ row }) => {
-      const asset = row.getValue('asset') as Asset;
+      const asset = row.original.asset as Asset;
       return (
         <Link href={`/assets/${asset.ticker}`}>
           <Button variant="ghost">
@@ -57,9 +59,10 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     accessorKey: 'provider',
+    accessorFn: (row) => row.provider?.name,
     header: () => <div className="px-4">Provider</div>,
     cell: ({ row }) => {
-      const provider = row.getValue('provider') as Provider;
+      const provider = row.original.provider as Provider;
       return (
         <Link href={`/providers/${provider.slug}`}>
           <Button variant="ghost">
@@ -82,9 +85,13 @@ export const columns: ColumnDef<Transaction>[] = [
     accessorKey: 'amount',
     header: () => <div>Amount</div>,
     cell: ({ row }) => {
-      const amount = Number(row.getValue('amount'));
-      const asset = row.getValue('asset') as Asset;
-      const ticker = asset.ticker;
+      // console.log({ row });
+      const amount = Number(row.original.amount);
+      const ticker = row.original.asset?.ticker;
+      if (!ticker) {
+        return <div className="font-medium">{amount}</div>;
+      }
+
       const formatted = formatCurrency(amount, ticker, 'fr');
 
       return <div className="font-medium">{formatted}</div>;

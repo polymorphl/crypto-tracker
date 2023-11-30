@@ -1,20 +1,26 @@
 # TODO
 
+- Implement pagination in UI (with count + fetch())
 - https://www.youtube.com/watch?v=VQFjyEa8vGE
 - i18N ?
 - Implement Redis ? (Local || Upstash service -- free tier)
-- [SCRIPT folder ?] Migrate Notion CSV into a seed file
 - [SCRIPT folder ?] Download all Crypto icons
 - [SCRIPT folder ?] Find all icons for Providers (Coinbase, Binance, Crypto.com, etc...)
 - Implement BlockchainAddress entity (to track activites on blockchain)
 - Dig => hosting local img (CDN?)
+- NextAuth
 
 # DOING
 
-- Implement pagination in UI (with count + fetch())
+- [SCRIPT folder ?] Migrate Notion CSV into a seed file
 
 # DONE
 
+- implement data-table filters (Asset & Provider)
+- implement query `getTransactionsAmountForAssetId`
+- implement `<AssetCard />`
+- Implement some simple price (Coin Gecko endpoint)
+- Create a coin-gecko account
 - Create the `scripts` folder
 - New query: Get Transactions by Provider
 - Implement pagination with count (for Txns)
