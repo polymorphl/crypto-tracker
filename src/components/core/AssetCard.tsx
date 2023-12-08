@@ -40,10 +40,16 @@ export default function AssetCard({ data, price, total }: Props) {
             {formatCurrency(price, 'usd', 'fr')}
           </span>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-2">
           <h2 className="text-xl font-semibold">Amount:</h2>
           <span className="text-xl font-semibold text-gray-800 dark:text-gray-200">
             {formatCurrency(total, data.ticker, 'fr')}
+          </span>
+        </div>
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-xl font-semibold">Value:</h2>
+          <span className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+            {formatCurrency(price * total, 'usd', 'fr')}
           </span>
         </div>
       </CardContent>

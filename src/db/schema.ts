@@ -20,6 +20,22 @@ export const assets = pgTable('assets', {
 
 export type Asset = typeof assets.$inferSelect;
 
+export const links = pgTable('links', {
+  id: serial('id').primaryKey(),
+  type: text('type', { enum: ['cold-wallet', 'platform', 'wallet'] }).notNull(),
+  asset_slug: varchar('asset_slug', { length: 256 }).notNull(),
+  asset_id: integer('asset_id')
+    .references(() => assets.id)
+    .notNull(),
+  provider_id: integer('provider_id')
+    .references(() => providers.id)
+    .notNull(),
+  user_id: varchar('user_id', { length: 256 }).notNull(),
+  url: varchar('url', { length: 256 }),
+});
+
+export type Link = typeof links.$inferSelect;
+
 export const providers = pgTable('providers', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 256 }).notNull(),
@@ -32,17 +48,15 @@ export type Provider = typeof providers.$inferSelect;
 
 export const transactions = pgTable('transactions', {
   id: serial('id').primaryKey(),
-  asset_id: integer('asset_id')
-    .references(() => assets.id)
+  link_id: integer('link_id')
+    .references(() => links.id)
     .notNull(),
-  provider_id: integer('provider_id')
-    .references(() => providers.id)
-    .notNull(),
+  user_id: varchar('user_id', { length: 256 }).notNull(),
   type: text('type', {
     enum: ['buy', 'deposit', 'sell', 'withdrawal'],
   }).notNull(),
   amount: decimal('amount', { precision: 20, scale: 8 }).notNull(),
-  price_per_unit_usd: decimal('price_per_unit').notNull(),
+  price_per_unit: decimal('price_per_unit').notNull(),
   note: varchar('name', { length: 256 }),
   linked_url: varchar('linked_url', { length: 256 }),
   created_at: timestamp('created_at', { withTimezone: true }).defaultNow(),
@@ -50,3 +64,15 @@ export const transactions = pgTable('transactions', {
 });
 
 export type Transaction = typeof transactions.$inferSelect;
+
+export const raw_imports = pgTable('raw_imports', {
+  id: serial('id').primaryKey(),
+  user_id: varchar('user_id', { length: 256 }).notNull(),
+  name: varchar('name', { length: 256 }).notNull(),
+  type: varchar('type', { length: 256 }).notNull(),
+  path: varchar('path', { length: 256 }).notNull(),
+  size: integer('size').notNull(),
+  created_at: timestamp('created_at', { withTimezone: true }).defaultNow(),
+});
+
+export type RawImports = typeof raw_imports.$inferSelect;

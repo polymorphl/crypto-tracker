@@ -75,15 +75,14 @@ export function DataTable<TData, TValue>({
           <div className="max-w-sm mr-4">
             <Input
               placeholder="Filter asset..."
-              // type="search"
+              type="search"
               value={
                 (table.getColumn('asset')?.getFilterValue() as string) ?? ''
               }
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                // console.log('test', table.getColumn('asset'));
                 table.getColumn('asset')?.setFilterValue(event.target.value);
               }}
-              // className="max-w-sm"
+              className="max-w-sm"
             />
           </div>
         )}
@@ -96,7 +95,6 @@ export function DataTable<TData, TValue>({
                 (table.getColumn('provider')?.getFilterValue() as string) ?? ''
               }
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                // console.log('test', table.getColumn('asset'));
                 table.getColumn('provider')?.setFilterValue(event.target.value);
               }}
               className="max-w-sm"

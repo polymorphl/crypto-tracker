@@ -4,10 +4,20 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { faker } from '@faker-js/faker';
 
-import { Asset, Provider, assets, providers, transactions } from './schema';
+import {
+  Asset,
+  Provider,
+  assets,
+  links,
+  providers,
+  raw_imports,
+  transactions,
+} from './schema';
 
 if (!('DATABASE_URL' in process.env))
   throw new Error('DATABASE_URL not found on .env file');
+
+const userId = 'kp_129fe2b94a9544e2a3a27abab7edbe7b';
 
 const clearDb = async (db: any) => {
   const query = sql<string>`SELECT table_name
@@ -78,8 +88,8 @@ const seedProviders = async (db: any) => {
   await db.insert(providers).values(providersData);
 };
 
-const seedTransactions = async (db: any) => {
-  const transactionsData: (typeof transactions.$inferInsert)[] = [];
+const seedLinks = async (db: any) => {
+  const linksData: (typeof links.$inferInsert)[] = [];
   const assetsData = await db.select().from(assets);
   const providersData = await db.select().from(providers);
   const ledger = providersData.find(
@@ -98,16 +108,62 @@ const seedTransactions = async (db: any) => {
   for (let i = 0; i < 50; i++) {
     const rand = faker.helpers.rangeToNumber({ min: 0, max: 5 });
     const randProvider = Math.floor(Math.random() * allProviders.length);
+    const p = allProviders[randProvider];
+    const pType = p.type === 'hot-wallet' ? 'platform' : 'cold-wallet';
+    linksData.push({
+      type: pType,
+      asset_id: rand % 2 ? btc.id : eth.id,
+      asset_slug: rand % 2 ? btc.ticker : eth.ticker,
+      provider_id: p.id,
+      user_id: userId,
+      url: '',
+    });
+  }
+
+  await db.insert(links).values(linksData);
+};
+
+const seedTransactions = async (db: any) => {
+  const linksData = await db.select().from(links);
+  const transactionsData: (typeof transactions.$inferInsert)[] = [];
+
+  for (let i = 0; i < 100; i++) {
+    const rand = faker.helpers.rangeToNumber({
+      min: 0,
+      max: linksData.length - 1,
+    });
     transactionsData.push({
       type: 'buy',
-      asset_id: rand % 2 ? btc.id : eth.id,
-      provider_id: allProviders[randProvider].id,
-      amount: faker.finance.amount(0.01, 0.02, 8),
-      price_per_unit_usd: faker.finance.amount(10000, 20000, 8),
+      link_id: linksData[rand].id,
+      amount: faker.finance.amount(0.001, 0.006, 8),
+      price_per_unit: faker.finance.amount(100, 200, 8),
+      user_id: userId,
+      created_at: faker.date.past({ years: 1 }),
     });
   }
 
   await db.insert(transactions).values(transactionsData);
+};
+
+const seedFiles = async (db: any) => {
+  const filesData: (typeof raw_imports.$inferInsert)[] = [];
+
+  for (let i = 0; i < 100; i++) {
+    const rand = faker.helpers.rangeToNumber({
+      min: 0,
+      max: 100000,
+    });
+    filesData.push({
+      user_id: userId,
+      name: faker.system.fileName(),
+      path: faker.system.filePath(),
+      type: faker.system.mimeType(),
+      size: rand,
+      created_at: faker.date.past({ years: 1 }),
+    });
+  }
+
+  await db.insert(raw_imports).values(filesData);
 };
 
 const main = async () => {
@@ -120,7 +176,9 @@ const main = async () => {
   console.log('⚡️ Seed start');
   await seedAssets(db);
   await seedProviders(db);
+  await seedLinks(db);
   await seedTransactions(db);
+  await seedFiles(db);
   console.log('Seed done 👍');
   return client.end();
 };

@@ -24,8 +24,11 @@ export type CreateAssetDto = {
   icon: string | null;
 };
 
-export type AssetId = number;
-
+/**
+ * Maps an Asset object to a DTO (Data Transfer Object).
+ * @param item - The Asset object to be mapped.
+ * @returns The DTO object with the mapped properties.
+ */
 function toDtoMapper(item: Asset) {
   return {
     id: item.id,
@@ -38,17 +41,24 @@ function toDtoMapper(item: Asset) {
   };
 }
 
+/**
+ * Retrieves assets from the database.
+ * @returns A promise that resolves to an array of AssetDto objects.
+ */
 export async function getAssets(): Promise<AssetDto[]> {
   const rows = await db.query.assets.findMany();
 
   return rows.map(toDtoMapper);
 }
 
-export async function getAssetById(
-  assetId: number
-): Promise<AssetDto | undefined> {
+/**
+ * Retrieves an asset by its ID.
+ * @param id - The ID of the asset.
+ * @returns A promise that resolves to the asset DTO if found, or undefined if not found.
+ */
+export async function getAssetById(id: number): Promise<AssetDto | undefined> {
   const foundAsset = await db.query.assets.findFirst({
-    where: eq(assets.id, assetId),
+    where: eq(assets.id, id),
   });
 
   if (!foundAsset) {
@@ -58,6 +68,11 @@ export async function getAssetById(
   return toDtoMapper(foundAsset);
 }
 
+/**
+ * Retrieves an asset by its ticker.
+ * @param ticker - The ticker symbol of the asset.
+ * @returns A promise that resolves to an AssetDto if the asset is found, otherwise undefined.
+ */
 export async function getAssetByTicker(
   ticker: string
 ): Promise<AssetDto | undefined> {

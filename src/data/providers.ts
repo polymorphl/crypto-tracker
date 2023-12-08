@@ -13,15 +13,11 @@ export type ProviderDto = {
   icon: string | null;
 };
 
-export type CreateProviderDto = {
-  name: string;
-  slug: string;
-  type: 'cold-wallet' | 'hot-wallet';
-  icon: string | null;
-};
-
-export type ProviderId = number;
-
+/**
+ * Maps a Provider object to a DTO (Data Transfer Object).
+ * @param item - The Provider object to be mapped.
+ * @returns The mapped DTO object.
+ */
 function toDtoMapper(item: Provider) {
   return {
     id: item.id,
@@ -32,17 +28,26 @@ function toDtoMapper(item: Provider) {
   };
 }
 
+/**
+ * Retrieves a list of providers.
+ * @returns A promise that resolves to an array of ProviderDto objects.
+ */
 export async function getProviders(): Promise<ProviderDto[]> {
   const rows = await db.query.providers.findMany();
 
   return rows.map(toDtoMapper);
 }
 
+/**
+ * Retrieves a provider by its ID.
+ * @param id The ID of the provider to retrieve.
+ * @returns A Promise that resolves to a ProviderDto if the provider is found, otherwise undefined.
+ */
 export async function getProviderById(
-  providerId: number
+  id: number
 ): Promise<ProviderDto | undefined> {
   const foundProvider = await db.query.providers.findFirst({
-    where: eq(providers.id, providerId),
+    where: eq(providers.id, id),
   });
 
   if (!foundProvider) {
@@ -52,6 +57,11 @@ export async function getProviderById(
   return toDtoMapper(foundProvider);
 }
 
+/**
+ * Retrieves a provider by its slug.
+ * @param slug - The slug of the provider.
+ * @returns A Promise that resolves to a ProviderDto if found, otherwise undefined.
+ */
 export async function getProviderBySlug(
   slug: string
 ): Promise<ProviderDto | undefined> {
@@ -64,8 +74,4 @@ export async function getProviderBySlug(
   }
 
   return toDtoMapper(foundProvider);
-}
-
-export async function createProvider(provider: CreateProviderDto) {
-  await db.insert(providers).values(provider);
 }

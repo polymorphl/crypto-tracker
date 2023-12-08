@@ -8,7 +8,6 @@
 - [SCRIPT folder ?] Find all icons for Providers (Coinbase, Binance, Crypto.com, etc...)
 - Implement BlockchainAddress entity (to track activites on blockchain)
 - Dig => hosting local img (CDN?)
-- NextAuth
 
 # DOING
 
@@ -16,6 +15,8 @@
 
 # DONE
 
+- Create `Link` entity (Asset + Provider + User Id)
+- Auth with Kinde
 - implement data-table filters (Asset & Provider)
 - implement query `getTransactionsAmountForAssetId`
 - implement `<AssetCard />`

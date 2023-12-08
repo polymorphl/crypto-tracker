@@ -1,0 +1,1 @@
+ALTER TABLE "transactions" ADD COLUMN "value" numeric(20, 8) DEFAULT amount * price_per_unit_usd NOT NULL;

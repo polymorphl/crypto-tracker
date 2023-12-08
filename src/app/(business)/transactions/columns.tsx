@@ -85,7 +85,6 @@ export const columns: ColumnDef<TransactionDto>[] = [
     accessorKey: 'amount',
     header: () => <div>Amount</div>,
     cell: ({ row }) => {
-      // console.log({ row });
       const amount = Number(row.original.amount);
       const ticker = row.original.asset?.ticker;
       if (!ticker) {
@@ -98,16 +97,42 @@ export const columns: ColumnDef<TransactionDto>[] = [
     },
   },
   {
-    accessorKey: 'price_per_unit_usd',
+    accessorKey: 'price_per_unit',
     header: () => <div>Price</div>,
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue('price_per_unit_usd'));
+      const ppu = parseFloat(row.getValue('price_per_unit'));
       const formatted = new Intl.NumberFormat('fr-FR', {
         style: 'currency',
         currency: 'EUR',
-      }).format(amount);
+      }).format(ppu);
 
       return <div className="font-medium">{formatted}</div>;
+    },
+  },
+  {
+    accessorKey: 'value_usd',
+    header: () => <div>Value $</div>,
+    cell: ({ row }) => {
+      const amount = parseFloat(row.getValue('amount'));
+      const ppu = parseFloat(row.getValue('price_per_unit'));
+      const v = amount * ppu;
+      const formatted = new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: 'USD',
+      }).format(v);
+
+      return <div className="font-medium">{formatted}</div>;
+    },
+  },
+  {
+    accessorKey: 'Date',
+    header: () => <div>Date</div>,
+    cell: ({ row }) => {
+      const date = (row.original.created_at as Date).toLocaleString('fr-FR', {
+        timeZone: 'UTC',
+      });
+
+      return <div className="font-medium">{date}</div>;
     },
   },
   {

@@ -14,26 +14,9 @@ export const fontSans = FontSans({
 
 export const metadata: Metadata = {
   title: 'Crypto Tracker',
+  description:
+    "Crypto Tracker is a simple app to track your crypto assets' value",
 };
-
-const sidebarNavItems = [
-  {
-    title: 'Home',
-    path: '/',
-  },
-  {
-    title: 'Assets',
-    path: '/assets',
-  },
-  {
-    title: 'Providers',
-    path: '/providers',
-  },
-  {
-    title: 'Transactions',
-    path: '/transactions',
-  },
-];
 
 export default function RootLayout({
   children,
@@ -54,7 +37,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar items={sidebarNavItems} />
+          <Navbar />
           <div className="space-y-4 p-8 pb-16 md:block">
             <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
               <div className="flex-1">{children}</div>
