@@ -1,4 +1,3 @@
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import { redirect } from 'next/navigation';
 
 import { getProviders } from '@/data/providers';
@@ -7,11 +6,10 @@ import { DataTable } from './data-table';
 
 export default async function AssetsPage() {
   const data = await getProviders();
-  const { isAuthenticated } = getKindeServerSession();
 
-  if (!(await isAuthenticated())) {
-    redirect('/api/auth/login?post_login_redirect_url=/providers');
-  }
+  // if (!(await isAuthenticated())) {
+  //   redirect('/api/auth/login?post_login_redirect_url=/providers');
+  // }
 
   return (
     <div className="container mx-auto py-5">

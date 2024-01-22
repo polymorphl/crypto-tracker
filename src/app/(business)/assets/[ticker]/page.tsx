@@ -1,9 +1,8 @@
+import { redirect } from 'next/navigation';
+
 import { getAssetByTicker } from '@/data/assets';
 import { getTransactionsByTicker } from '@/data/transactions';
 import { columns } from '@/app/(business)/transactions/columns';
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
-import { redirect } from 'next/navigation';
-
 import { DataTable } from '@/app/(business)/transactions/data-table';
 import AssetCard from '@/components/core/AssetCard';
 
@@ -12,13 +11,11 @@ export default async function AssetPage({
 }: {
   params: { ticker: string };
 }) {
-  const { isAuthenticated } = getKindeServerSession();
-
-  if (!(await isAuthenticated())) {
-    redirect(
-      `/api/auth/login?post_login_redirect_url=/assets/${params.ticker}`
-    );
-  }
+  // if (!(await isAuthenticated())) {
+  //   redirect(
+  //     `/api/auth/login?post_login_redirect_url=/assets/${params.ticker}`
+  //   );
+  // }
 
   const assetData = await getAssetByTicker(params.ticker as string);
 

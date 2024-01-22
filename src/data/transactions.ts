@@ -1,6 +1,5 @@
 import 'server-only';
 
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import { desc, eq, sql } from 'drizzle-orm';
 import { PgSelect, PgSelectQueryBuilder } from 'drizzle-orm/pg-core';
 
@@ -48,9 +47,6 @@ type PaginatedResults = {
 type PaginatedResultsWithTotalAmount = PaginatedResults & {
   total_amount: number;
 };
-
-const { getUser } = getKindeServerSession();
-const user = await getUser();
 
 /**
  * Maps the common properties of a transaction object.
@@ -122,14 +118,11 @@ function withPagination<T extends PgSelect>(
  * @returns The query builder with the added joins.
  */
 function withRelations<T extends PgSelectQueryBuilder>(qb: T) {
-  if (!user) {
-    return qb;
-  }
   return qb
     .leftJoin(links, eq(transactions.link_id, links.id))
     .leftJoin(assets, eq(links.asset_id, assets.id))
-    .leftJoin(providers, eq(links.provider_id, providers.id))
-    .where(eq(transactions.user_id, user.id)); // Limit to the current user's transactions
+    .leftJoin(providers, eq(links.provider_id, providers.id));
+  // .where(eq(transactions.user_id, user.id)); // Limit to the current user's transactions
 }
 
 /**

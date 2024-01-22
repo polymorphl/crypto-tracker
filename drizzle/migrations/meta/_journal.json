@@ -71,6 +71,34 @@
       "when": 1701987725537,
       "tag": "0009_fuzzy_dracula",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1705697951996,
+      "tag": "0010_hard_lady_mastermind",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1705878418774,
+      "tag": "0011_furry_gargoyle",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1705878566265,
+      "tag": "0012_needy_cerebro",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1705959980484,
+      "tag": "0013_free_sunset_bain",
+      "breakpoints": true
     }
   ]
 }

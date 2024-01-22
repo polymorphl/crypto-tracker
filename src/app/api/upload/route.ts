@@ -15,5 +15,6 @@ export async function POST(req: Request, res: Response) {
   const buffer = Buffer.from(bytes);
   const path = join('tmp', file.name);
   await writeFile(path, buffer, () => {});
+
   return new Response(path);
 }

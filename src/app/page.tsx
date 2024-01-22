@@ -1,4 +1,3 @@
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import {
   Card,
   CardContent,
@@ -10,36 +9,30 @@ import {
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
-import { redirect } from 'next/navigation';
+import { auth } from '@/auth';
 
 export default async function Home() {
-  const { isAuthenticated } = getKindeServerSession();
-
-  if (await isAuthenticated()) {
-    redirect('/api/auth/login?post_login_redirect_url=/dashboard');
-  }
-
+  const session = await auth();
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <Card className="w-[350px]">
         <CardHeader>
-          <CardTitle>
-            Let’s start authenticating <br /> with KindeAuth
-          </CardTitle>
-          <CardDescription>Configure your app</CardDescription>
+          <CardTitle>Testing auth</CardTitle>
         </CardHeader>
         <CardContent>
-          <Link
-            href="https://kinde.com/docs/sdks/nextjs-sdk"
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-light btn-big"
-          >
-            Go to docs
-          </Link>
-          <Button className="m-2">
-            <Link href="/protected">Go to protected</Link>
-          </Button>
+          <CardDescription>
+            {session ? `Signed in as ${session?.user?.email}` : 'Not signed in'}
+          </CardDescription>
+          {!session?.user ? (
+            <>
+              <Button className="m-2">
+                <Link href="/sign-up">Sign up</Link>
+              </Button>
+              <Button className="m-2">
+                <Link href="/login">Login</Link>
+              </Button>
+            </>
+          ) : null}
         </CardContent>
       </Card>
       <CardFooter className="flex flex-col justify-between p-6">

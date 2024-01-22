@@ -4,6 +4,7 @@
 - https://www.youtube.com/watch?v=VQFjyEa8vGE
 - i18N ?
 - Implement Redis ? (Local || Upstash service -- free tier)
+- [SCRIPT folder ?] Migrate Notion CSV into a seed file
 - [SCRIPT folder ?] Download all Crypto icons
 - [SCRIPT folder ?] Find all icons for Providers (Coinbase, Binance, Crypto.com, etc...)
 - Implement BlockchainAddress entity (to track activites on blockchain)
@@ -11,12 +12,34 @@
 
 # DOING
 
-- [SCRIPT folder ?] Migrate Notion CSV into a seed file
+- Try to link Account on SignUp
+- Re-do Auth with postgre (WIP)
+
+---
+
+- New indicators:
+  - Provider page: First / Last transaction date
+  - Provider page: Total invested in $USD
+  - Asset page: Total invested in $USD
+
+---
+
+- Implement FileUpload for:
+
+  - crypto.com
+  - coinbase.com
+  - Ledger
+
+- (Test)work on `src/app/api/upload/routes.ts` with OpenAI
 
 # DONE
 
+- Handle Session via Next-auth (TODO #1)
+  - Credential provider
+- Finish Login form
+- Finish Signup form
+- Remove Kinde
 - Create `Link` entity (Asset + Provider + User Id)
-- Auth with Kinde
 - implement data-table filters (Asset & Provider)
 - implement query `getTransactionsAmountForAssetId`
 - implement `<AssetCard />`

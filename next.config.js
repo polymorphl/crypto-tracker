@@ -20,6 +20,15 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config, { webpack }) => {
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^pg-native$|^cloudflare:sockets$/,
+      })
+    );
+    // Important: return the modified config
+    return config;
+  },
 };
 
 module.exports = nextConfig;

@@ -1,33 +1,119 @@
 import NextAuth from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
+import { DrizzleAdapter } from '@auth/drizzle-adapter';
 
-export const { auth, handlers } = NextAuth({
+import authConfig from '@/auth.config';
+import { login } from './data/users';
+import { db } from './db';
+// import { users } from './db/schema';
+// import { eq } from 'drizzle-orm';
+// import { getAccountByUserId } from './data/accounts';
+import Credentials from 'next-auth/providers/credentials';
+import { users } from './db/schema';
+import { eq } from 'drizzle-orm';
+
+export const {
+  handlers: { GET, POST },
+  auth,
+  signIn,
+  signOut,
+} = NextAuth({
+  ...authConfig,
+  adapter: DrizzleAdapter(db),
+  events: {
+    async linkAccount({ user }) {
+      await db
+        .update(users)
+        .set({ emailVerified: new Date() })
+        .where(eq(users.id, user.id));
+    },
+  },
+  session: { strategy: 'jwt' },
   providers: [
-    CredentialsProvider({
-      // The name to display on the sign in form (e.g. "Sign in with...")
-      name: 'Credentials',
-      // `credentials` is used to generate a form on the sign in page.
-      // You can specify which fields should be submitted, by adding keys to the `credentials` object.
-      // e.g. domain, username, password, 2FA token, etc.
-      // You can pass any HTML attribute to the <input> tag through the object.
-      credentials: {
-        username: { label: 'Username', type: 'text', placeholder: 'jsmith' },
-        password: { label: 'Password', type: 'password' },
-      },
-      async authorize(credentials, req) {
-        // Add logic here to look up the user from the credentials supplied
-        const user = { id: '1', name: 'J Smith', email: 'jsmith@example.com' };
-
-        if (user) {
-          // Any object returned will be saved in `user` property of the JWT
-          return user;
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
-          return null;
-
-          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
-        }
+    Credentials({
+      async authorize({ email, password }: any) {
+        return await login(email, password);
       },
     }),
   ],
 });
+
+// export const {
+//   handlers: { GET, POST },
+//   auth,
+//   signIn,
+//   signOut,
+//   update,
+// } = NextAuth({
+//   pages: {
+//     signIn: '/login',
+//     error: '/auth/error',
+//   },
+//   callbacks: {
+//     async signIn({ user, account }) {
+//       // Allow OAuth without email verification
+//       if (account?.provider !== 'credentials') return true;
+
+//       const existingUser = await getUserById(user.id);
+
+//       // Prevent sign in without email verification
+//       if (!existingUser?.emailVerified) return false;
+
+//       // TODO: Add two factor authentication
+//       // if (existingUser.isTwoFactorEnabled) {
+//       //   const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(
+//       //     existingUser.id
+//       //   );
+
+//       //   if (!twoFactorConfirmation) return false;
+
+//       //   // Delete two factor confirmation for next sign in
+//       //   await db.twoFactorConfirmation.delete({
+//       //     where: { id: twoFactorConfirmation.id },
+//       //   });
+//       // }
+
+//       return true;
+//     },
+//     async session({ token, session }) {
+//       if (token.sub && session.user) {
+//         session.user.id = token.sub;
+//       }
+
+//       // if (token.role && session.user) {
+//       //   session.user.role = token.role as UserRole;
+//       // }
+
+//       // if (session.user) {
+//       //   session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
+//       // }
+
+//       if (session.user) {
+//         session.user.name = token.name;
+//         session.user.email = token.email;
+//         // session.user.isOAuth = token.isOAuth as boolean;
+//       }
+
+//       return session;
+//     },
+//     async jwt({ token }) {
+//       if (!token.sub) return token;
+
+//       const existingUser = await getUserById(token.sub);
+
+//       if (!existingUser) return token;
+
+//       const existingAccount = await getAccountByUserId(existingUser.id);
+
+//       token.isOAuth = !!existingAccount;
+//       // token.name = existingUser.name;
+//       token.email = existingUser.email;
+//       // token.role = existingUser.role;
+//       // token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
+
+//       return token;
+//     },
+//   },
+//   adapter: DrizzleAdapter(db),
+//   session: { strategy: 'jwt' },
+//   ...authConfig,
+// });

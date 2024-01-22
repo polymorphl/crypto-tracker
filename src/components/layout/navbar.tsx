@@ -1,10 +1,11 @@
 'use client';
 
-import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
+import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Menu, Search } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 
 import { ModeToggle } from '@/app/theme-toggle';
 import { Input } from '../ui/input';
@@ -39,27 +40,29 @@ const sidebarNavItems: NavItem[] = [
 ];
 
 export default function Navbar() {
-  const { isAuthenticated, isLoading } = useKindeBrowserClient();
+  const { data: session, status } = useSession();
   const [menu, setMenu] = useState<any[]>([]);
 
   const currentRoute = usePathname();
   const [open, setOpen] = useState(false);
 
+  const isAuthenticated = status === 'authenticated';
+
   useEffect(() => {
-    if (!isLoading) {
-      if (isAuthenticated) {
-        setMenu([
-          {
-            title: 'Home',
-            path: '/dashboard',
-          },
-          ...sidebarNavItems.filter((item) => item.title !== 'Home'),
-        ]);
-      } else {
-        setMenu(sidebarNavItems);
-      }
+    console.log({ isAuthenticated });
+
+    if (isAuthenticated) {
+      setMenu([
+        {
+          title: 'Home',
+          path: '/protected',
+        },
+        ...sidebarNavItems.filter((item) => item.title !== 'Home'),
+      ]);
+    } else {
+      setMenu(sidebarNavItems);
     }
-  }, [isLoading, isAuthenticated]);
+  }, [isAuthenticated]);
 
   return (
     <header>
@@ -84,9 +87,7 @@ export default function Navbar() {
             }`}
           >
             <ul className="justify-center items-center space-y-8 md:flex md:space-x-6 md:space-y-0">
-              {isLoading ? (
-                <div>Loading...</div>
-              ) : isAuthenticated ? (
+              {isAuthenticated ? (
                 <>
                   {menu.map((item, idx) => (
                     <li
@@ -112,45 +113,33 @@ export default function Navbar() {
                     />
                   </form>
                   <li>
-                    <Button variant={'link'}>
-                      <Link href="/api/auth/logout">⬅️ Logout</Link>
+                    <Button
+                      variant={'link'}
+                      onClick={() =>
+                        signOut({
+                          callbackUrl: `/login`,
+                        })
+                      }
+                    >
+                      Sign out
                     </Button>
                   </li>
                 </>
               ) : (
-                <li>
-                  <Button variant={'ghost'}>
-                    <Link href="/api/auth/login">🚪 Login</Link>
-                  </Button>
-                </li>
+                <>
+                  <li>
+                    <Button variant={'ghost'}>
+                      <Link href="/login">🚪 Login</Link>
+                    </Button>
+                  </li>
+                  <li>
+                    <Button variant={'ghost'}>
+                      <Link href="/sign-up">🚪 Sign up</Link>
+                    </Button>
+                  </li>
+                </>
               )}
-              {/* <ul className="justify-center items-center space-y-8 md:flex md:space-x-6 md:space-y-0">
-              {menus.map((item, idx) => (
-                <li
-                  key={idx}
-                  className={cn(
-                    'hover:text-gray-500 dark:hover:text-gray-200',
-                    {
-                      'underline underline-offset-2':
-                        item.path === currentRoute,
-                    }
-                  )}
-                >
-                  <Link href={item.path}>{item.title}</Link>
-                </li>
-              ))} */}
               <ModeToggle />
-              {/* {isLoading ? (
-                <div>Loading...</div>
-              ) : isAuthenticated ? (
-                <li>
-                  <Link href="/api/auth/logout">⬅️ Logout</Link>
-                </li>
-              ) : (
-                <li>
-                  <Link href="/api/auth/login">🚪 Login</Link>
-                </li>
-              )} */}
             </ul>
           </div>
         </div>

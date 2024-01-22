@@ -7,17 +7,17 @@ import { faker } from '@faker-js/faker';
 import {
   Asset,
   Provider,
+  User,
   assets,
   links,
   providers,
   raw_imports,
   transactions,
+  users,
 } from './schema';
 
 if (!('DATABASE_URL' in process.env))
   throw new Error('DATABASE_URL not found on .env file');
-
-const userId = 'kp_129fe2b94a9544e2a3a27abab7edbe7b';
 
 const clearDb = async (db: any) => {
   const query = sql<string>`SELECT table_name
@@ -32,6 +32,16 @@ const clearDb = async (db: any) => {
     const query = sql.raw(`TRUNCATE TABLE ${table.table_name} CASCADE;`);
     await db.execute(query);
   }
+};
+
+const seedUsers = async (db: any) => {
+  const usersData: (typeof users.$inferInsert)[] = [];
+  usersData.push({
+    email: 'luc@test.co',
+    password: '123456',
+  });
+
+  await db.insert(users).values(usersData);
 };
 
 const seedAssets = async (db: any) => {
@@ -92,6 +102,7 @@ const seedLinks = async (db: any) => {
   const linksData: (typeof links.$inferInsert)[] = [];
   const assetsData = await db.select().from(assets);
   const providersData = await db.select().from(providers);
+  const userId = (await db.select().from(users))[0].id;
   const ledger = providersData.find(
     (provider: any) => provider.name === 'Ledger Nano X'
   ) as Provider;
@@ -126,6 +137,7 @@ const seedLinks = async (db: any) => {
 const seedTransactions = async (db: any) => {
   const linksData = await db.select().from(links);
   const transactionsData: (typeof transactions.$inferInsert)[] = [];
+  const userId = (await db.select().from(users))[0].id;
 
   for (let i = 0; i < 100; i++) {
     const rand = faker.helpers.rangeToNumber({
@@ -147,6 +159,7 @@ const seedTransactions = async (db: any) => {
 
 const seedFiles = async (db: any) => {
   const filesData: (typeof raw_imports.$inferInsert)[] = [];
+  const userId = (await db.select().from(users))[0].id;
 
   for (let i = 0; i < 100; i++) {
     const rand = faker.helpers.rangeToNumber({
@@ -174,6 +187,7 @@ const main = async () => {
   await clearDb(db);
 
   console.log('⚡️ Seed start');
+  await seedUsers(db);
   await seedAssets(db);
   await seedProviders(db);
   await seedLinks(db);

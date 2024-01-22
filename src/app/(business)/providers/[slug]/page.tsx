@@ -1,4 +1,3 @@
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import { redirect } from 'next/navigation';
 
 import { columns } from '@/app/(business)/transactions/columns';
@@ -12,13 +11,11 @@ export default async function ProviderPage({
 }: {
   params: { slug: string };
 }) {
-  const { isAuthenticated } = getKindeServerSession();
-
-  if (!(await isAuthenticated())) {
-    redirect(
-      `/api/auth/login?post_login_redirect_url=/providers/${params.slug}`
-    );
-  }
+  // if (!(await isAuthenticated())) {
+  //   redirect(
+  //     `/api/auth/login?post_login_redirect_url=/providers/${params.slug}`
+  //   );
+  // }
   // TODO: Implement pagination
   let page = 0;
   const providerData = await getProviderBySlug(params.slug as string);

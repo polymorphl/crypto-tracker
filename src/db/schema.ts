@@ -1,12 +1,79 @@
+import { sql } from 'drizzle-orm';
 import {
   decimal,
   integer,
   pgTable,
+  primaryKey,
   serial,
   text,
   timestamp,
   varchar,
 } from 'drizzle-orm/pg-core';
+import type { AdapterAccount } from '@auth/core/adapters';
+
+export const users = pgTable('users', {
+  id: text('id')
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => sql`(gen_random_uuid())`),
+  email: varchar('email', { length: 256 }).notNull().unique(),
+  emailVerified: timestamp('emailVerified', { withTimezone: true }),
+  password: varchar('password', { length: 256 }).notNull(),
+  created_at: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export type User = typeof users.$inferSelect;
+
+export const accounts = pgTable(
+  'account',
+  {
+    userId: text('userId')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    type: text('type').$type<AdapterAccount['type']>().notNull(),
+    provider: text('provider').notNull(),
+    providerAccountId: text('providerAccountId').notNull(),
+    refresh_token: text('refresh_token'),
+    access_token: text('access_token'),
+    expires_at: integer('expires_at'),
+    token_type: text('token_type'),
+    scope: text('scope'),
+    id_token: text('id_token'),
+    session_state: text('session_state'),
+  },
+  (account) => ({
+    compoundKey: primaryKey({
+      columns: [account.provider, account.providerAccountId],
+    }),
+  })
+);
+
+export const sessions = pgTable('session', {
+  sessionToken: text('sessionToken').notNull().primaryKey(),
+  userId: text('userId')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  expires: timestamp('expires', { mode: 'date' }).notNull(),
+});
+
+export const verificationTokens = pgTable(
+  'verificationToken',
+  {
+    identifier: text('identifier').notNull(),
+    token: text('token').notNull(),
+    expires: timestamp('expires', { mode: 'date' }).notNull(),
+  },
+  (vt) => ({
+    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
+  })
+);
+
+// BUSINESS
 
 export const assets = pgTable('assets', {
   id: serial('id').primaryKey(),
