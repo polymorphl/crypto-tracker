@@ -2,6 +2,7 @@ import 'server-only';
 
 import { hash, compare } from 'bcryptjs';
 import { eq } from 'drizzle-orm';
+import { currentUser } from '@clerk/nextjs';
 
 import { db } from '@/db';
 import { User, users } from '@/db/schema';

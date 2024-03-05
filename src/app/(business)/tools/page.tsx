@@ -1,16 +1,10 @@
-import { redirect } from 'next/navigation';
+import UploadFile from '@/components/form/tools/UploadFile';
 
-import Uploader from '@/components/core/Uploader';
-
-export default async function AssetsPage() {
-  // if (!(await isAuthenticated())) {
-  //   redirect('/api/auth/login?post_login_redirect_url=/tools');
-  // }
-
+export default async function ToolsPage() {
   return (
     <div className="container mx-auto py-5">
       <h1>Tools</h1>
-      <Uploader />
+      <UploadFile />
     </div>
   );
 }

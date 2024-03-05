@@ -16,7 +16,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { redirect } from 'next/dist/server/api-utils';
 
 const formSchema = z.object({
   email: z.string().email().min(1, 'Email is required'),

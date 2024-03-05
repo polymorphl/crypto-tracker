@@ -1,7 +1,7 @@
 import 'server-only';
 
-import { desc, eq, sql } from 'drizzle-orm';
-import { PgSelect, PgSelectQueryBuilder } from 'drizzle-orm/pg-core';
+import { and, desc, eq, sql } from 'drizzle-orm';
+import { PgSelectQueryBuilder } from 'drizzle-orm/pg-core';
 
 import { db } from '@/db';
 import {
@@ -16,6 +16,8 @@ import {
 } from '@/db/schema';
 import { getAssetByTicker } from './assets';
 import { getProviderBySlug } from './providers';
+import { withPagination } from './lib';
+import { currentUser } from '@clerk/nextjs';
 
 export type TransactionDto = {
   id: number;
@@ -97,22 +99,6 @@ function toDtoMapper(
 }
 
 /**
- * Applies pagination to a query builder.
- * @template T - The type of the query builder.
- * @param {T} qb - The query builder to apply pagination to.
- * @param {number} page - The page number.
- * @param {number} [pageSize=20] - The number of items per page.
- * @returns {T} - The modified query builder with pagination applied.
- */
-function withPagination<T extends PgSelect>(
-  qb: T,
-  page: number,
-  pageSize: number = 20
-) {
-  return qb.limit(pageSize).offset(page * pageSize);
-}
-
-/**
  * Adds relational joins to the provided query builder.
  * @param qb The query builder to add the joins to.
  * @returns The query builder with the added joins.
@@ -122,7 +108,6 @@ function withRelations<T extends PgSelectQueryBuilder>(qb: T) {
     .leftJoin(links, eq(transactions.link_id, links.id))
     .leftJoin(assets, eq(links.asset_id, assets.id))
     .leftJoin(providers, eq(links.provider_id, providers.id));
-  // .where(eq(transactions.user_id, user.id)); // Limit to the current user's transactions
 }
 
 /**
@@ -191,22 +176,27 @@ export async function getTransactionsByTicker({
   ticker: string;
 }): Promise<PaginatedResultsWithTotalAmount> {
   let query = getQuery();
+  const user = await currentUser();
 
-  const asset = await getAssetByTicker(ticker);
+  const asset = await getAssetByTicker(ticker, page);
+  console.log('getTransactionsByTicker=', asset);
 
   if (!asset) {
     return { data: [], count: 0, total_amount: 0 };
   }
 
-  query = query.where(eq(links.asset_id, asset.id));
+  if (user) {
+    query = query.where(eq(links.asset_id, asset.id));
+    const [rows, [{ count }], [{ total_amount }]] = await Promise.all([
+      withPagination(withRelations(query), page),
+      countTransactions(),
+      getTransactionsAmountForAssetId(asset.id),
+    ]);
 
-  const [rows, [{ count }], [{ total_amount }]] = await Promise.all([
-    withPagination(withRelations(query), page),
-    countTransactions(),
-    getTransactionsAmountForAssetId(asset.id),
-  ]);
-
-  return { data: reduceRowsToDto(rows), count, total_amount };
+    return { data: reduceRowsToDto(rows), count, total_amount };
+  } else {
+    return { data: [], count: 0, total_amount: 0 };
+  }
 }
 
 /**
@@ -241,9 +231,14 @@ export async function getTransactionsByProvider({
   page?: number;
   slug: string;
 }): Promise<PaginatedResults> {
+  const user = await currentUser();
   let query = getQuery();
+  if (user?.id) {
+    query = query.where(eq(transactions.user_id, user?.id));
+  }
 
   const provider = await getProviderBySlug(slug);
+  console.log('getTransactionsByProvider=', { provider });
 
   if (!provider) {
     return { data: [], count: 0 };
@@ -266,12 +261,17 @@ export async function getTransactionsByProvider({
  * @returns A promise that resolves to a PaginatedResults object containing the transaction data and total count.
  */
 export async function getTransactions(page = 1): Promise<PaginatedResults> {
+  const user = await currentUser();
   let query = getQuery();
+  if (user?.id) {
+    query = query.where(eq(transactions.user_id, user?.id));
+  }
 
   const [rows, [{ count }]] = await Promise.all([
     withPagination(withRelations(query), page),
     countTransactions(),
   ]);
+  console.log('getTransactions=', { rows, count });
 
   return { data: reduceRowsToDto(rows), count };
 }

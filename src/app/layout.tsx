@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
+import { AppProps } from 'next/app';
 import { Inter as FontSans } from 'next/font/google';
+import { ClerkLoaded, ClerkLoading, ClerkProvider } from '@clerk/nextjs';
 
-import { auth } from '@/auth';
 import { ThemeProvider } from '@/app/theme-provider';
 import Navbar from '@/components/layout/navbar';
 import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
 
 import { cn } from '@/lib/utils';
-import { SessionProvider } from 'next-auth/react';
 
 export const fontSans = FontSans({
   subsets: ['latin'],
@@ -22,14 +22,16 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({
+  Component,
+  pageProps,
   children,
 }: {
   children: React.ReactNode;
+  Component: AppProps['Component'];
+  pageProps: AppProps['pageProps'];
 }) {
-  const session = await auth();
-
   return (
-    <SessionProvider session={session}>
+    <ClerkProvider {...pageProps}>
       <html lang="en">
         <body
           className={cn(
@@ -43,16 +45,21 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Navbar />
-            <div className="space-y-4 p-8 pb-16 md:block">
-              <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
-                <main className="flex-1">{children}</main>
-                <Toaster />
+            <ClerkLoading>
+              <div>Clerk is loading</div>
+            </ClerkLoading>
+            <ClerkLoaded>
+              <Navbar />
+              <div className="space-y-4 p-8 pb-16 md:block">
+                <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
+                  <main className="flex-1">{children}</main>
+                  <Toaster />
+                </div>
               </div>
-            </div>
+            </ClerkLoaded>
           </ThemeProvider>
         </body>
       </html>
-    </SessionProvider>
+    </ClerkProvider>
   );
 }

@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm';
 
 import { db } from '@/db';
 import { Provider, providers } from '@/db/schema';
+import { LinkDto, getCurrentUserLinks } from './link';
 
 export type ProviderDto = {
   id: number;
@@ -32,10 +33,12 @@ function toDtoMapper(item: Provider) {
  * Retrieves a list of providers.
  * @returns A promise that resolves to an array of ProviderDto objects.
  */
-export async function getProviders(): Promise<ProviderDto[]> {
-  const rows = await db.query.providers.findMany();
+export async function getProviders({ page = 0 }): Promise<ProviderDto[]> {
+  const rows = await getCurrentUserLinks(page, {
+    withRelations: { provider: { all: true } },
+  });
 
-  return rows.map(toDtoMapper);
+  return rows.data.map((r: LinkDto) => r.provider);
 }
 
 /**

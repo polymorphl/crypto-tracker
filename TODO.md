@@ -31,6 +31,8 @@
   - Ledger
 
 - (Test)work on `src/app/api/upload/routes.ts` with OpenAI
+- Implement https://api.coincap.io/v2/assets for realtime data
+- Dig https://towardsdatascience.com/obtain-unlimited-historical-crypto-data-through-simple-api-calls-without-keys-8a6f5ed55b43
 
 # DONE
 

@@ -5,7 +5,7 @@ import { columns } from './columns';
 import { DataTable } from './data-table';
 
 export default async function AssetsPage() {
-  const data = await getProviders();
+  const data = await getProviders({ page: 0 });
 
   // if (!(await isAuthenticated())) {
   //   redirect('/api/auth/login?post_login_redirect_url=/providers');

@@ -1,9 +1,10 @@
 import 'server-only';
 
-import { eq } from 'drizzle-orm';
+import { arrayContains, eq, inArray } from 'drizzle-orm';
 
 import { db } from '@/db';
 import { Asset, assets } from '@/db/schema';
+import { LinkDto, getCurrentUserLinks } from './link';
 
 export type AssetDto = {
   id: number;
@@ -45,10 +46,12 @@ function toDtoMapper(item: Asset) {
  * Retrieves assets from the database.
  * @returns A promise that resolves to an array of AssetDto objects.
  */
-export async function getAssets(): Promise<AssetDto[]> {
-  const rows = await db.query.assets.findMany();
+export async function getAssets({ page = 0 }): Promise<Asset[]> {
+  const rows = await getCurrentUserLinks(page, {
+    withRelations: { asset: { all: true } },
+  });
 
-  return rows.map(toDtoMapper);
+  return rows.data.map((r: LinkDto) => r.asset);
 }
 
 /**
@@ -74,19 +77,30 @@ export async function getAssetById(id: number): Promise<AssetDto | undefined> {
  * @returns A promise that resolves to an AssetDto if the asset is found, otherwise undefined.
  */
 export async function getAssetByTicker(
-  ticker: string
+  ticker: string,
+  page: number
 ): Promise<AssetDto | undefined> {
-  const foundAsset = await db.query.assets.findFirst({
-    where: eq(assets.ticker, ticker.toUpperCase()),
+  const rows = await getCurrentUserLinks(page, {
+    withRelations: { asset: { ticker: ticker }, provider: { all: true } },
   });
 
-  if (!foundAsset) {
+  if (!rows.data.length) {
     return undefined;
   }
+  console.log('getAssetByTicker=', ticker, rows.data[0]);
 
-  return toDtoMapper(foundAsset);
+  return rows.data[0].asset;
 }
 
-export async function createAsset(asset: CreateAssetDto) {
-  await db.insert(assets).values(asset);
+export async function getAssetsByTickers(tickers: string[]) {
+  const rows: any = await db
+    .select()
+    .from(assets)
+    .where(inArray(assets.ticker, tickers));
+
+  return rows;
+}
+
+export async function createAssets(payload: CreateAssetDto[]) {
+  await db.insert(assets).values(payload);
 }

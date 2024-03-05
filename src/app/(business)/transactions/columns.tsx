@@ -40,18 +40,18 @@ export const columns: ColumnDef<TransactionDto>[] = [
     cell: ({ row }) => {
       const asset = row.original.asset as Asset;
       return (
-        <Link href={`/assets/${asset.ticker}`}>
+        <Link href={`/assets/${asset?.ticker}`}>
           <Button variant="ghost">
-            {asset.icon && (
+            {asset?.icon && (
               <Image
-                src={asset.icon}
-                alt={`${asset.name} icon`}
+                src={asset?.icon}
+                alt={`${asset?.name} icon`}
                 width={64}
                 height={64}
                 className="w-4 h-4 mr-2"
               />
             )}
-            {asset.name}
+            {asset?.name}
           </Button>
         </Link>
       );
@@ -64,18 +64,18 @@ export const columns: ColumnDef<TransactionDto>[] = [
     cell: ({ row }) => {
       const provider = row.original.provider as Provider;
       return (
-        <Link href={`/providers/${provider.slug}`}>
+        <Link href={`/providers/${provider?.slug}`}>
           <Button variant="ghost">
-            {provider.icon && (
+            {provider?.icon && (
               <Image
-                src={provider.icon}
-                alt={`${provider.name} icon`}
+                src={provider?.icon}
+                alt={`${provider?.name} icon`}
                 width={64}
                 height={64}
                 className="w-4 h-4 mr-2"
               />
             )}
-            {provider.name}
+            {provider?.name}
           </Button>
         </Link>
       );

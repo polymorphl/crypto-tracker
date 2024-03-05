@@ -1,30 +1,25 @@
 import { redirect } from 'next/navigation';
 
-import { getAssetByTicker } from '@/data/assets';
-import { getTransactionsByTicker } from '@/data/transactions';
+import { AssetDto, getAssetByTicker } from '@/data/assets';
+import { TransactionDto, getTransactionsByTicker } from '@/data/transactions';
 import { columns } from '@/app/(business)/transactions/columns';
 import { DataTable } from '@/app/(business)/transactions/data-table';
 import AssetCard from '@/components/core/AssetCard';
+import { Asset } from '@/db/schema';
 
 export default async function AssetPage({
   params,
 }: {
   params: { ticker: string };
 }) {
-  // if (!(await isAuthenticated())) {
-  //   redirect(
-  //     `/api/auth/login?post_login_redirect_url=/assets/${params.ticker}`
-  //   );
-  // }
-
-  const assetData = await getAssetByTicker(params.ticker as string);
+  let page = 0;
+  const linkData = await getAssetByTicker(params.ticker as string, page);
 
   // TODO: Implement error page
-  if (!assetData) {
-    return <div>Asset not found</div>;
+  if (!linkData) {
+    return <div>linkData not found</div>;
   }
 
-  let page = 0;
   const { data, count, total_amount } = await getTransactionsByTicker({
     page,
     ticker: params.ticker,
@@ -32,11 +27,15 @@ export default async function AssetPage({
 
   return (
     <div className="container mx-auto py-5">
-      <AssetCard data={assetData} price={37000} total={total_amount} />
+      <AssetCard
+        data={linkData as AssetDto}
+        price={37040}
+        total={total_amount}
+      />
       <DataTable
         columns={columns}
         data={data}
-        count={count}
+        count={+count}
         visibleColumns={{ asset: false }}
       />
     </div>

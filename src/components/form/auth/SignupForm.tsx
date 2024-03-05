@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { signIn } from 'next-auth/react';
 
 const formSchema = z
   .object({
@@ -64,9 +65,14 @@ const SignupForm = () => {
         title: 'Error',
         description: data.error,
       });
+    } else {
+      await signIn('credentials', {
+        redirect: true,
+        callbackUrl: `/protected`,
+        email: values.email,
+        password: values.password,
+      });
     }
-
-    console.log({ data });
   };
 
   return (

@@ -1,11 +1,9 @@
 'use client';
-
-import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Menu, Search } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { UserButton, useAuth } from '@clerk/nextjs';
 
 import { ModeToggle } from '@/app/theme-toggle';
 import { Input } from '../ui/input';
@@ -40,17 +38,19 @@ const sidebarNavItems: NavItem[] = [
 ];
 
 export default function Navbar() {
-  const { data: session, status } = useSession();
+  const { isLoaded, userId } = useAuth();
   const [menu, setMenu] = useState<any[]>([]);
 
   const currentRoute = usePathname();
   const [open, setOpen] = useState(false);
 
-  const isAuthenticated = status === 'authenticated';
+  let isAuthenticated = true;
+
+  if (!isLoaded || !userId) {
+    isAuthenticated = false;
+  }
 
   useEffect(() => {
-    console.log({ isAuthenticated });
-
     if (isAuthenticated) {
       setMenu([
         {
@@ -113,23 +113,14 @@ export default function Navbar() {
                     />
                   </form>
                   <li>
-                    <Button
-                      variant={'link'}
-                      onClick={() =>
-                        signOut({
-                          callbackUrl: `/login`,
-                        })
-                      }
-                    >
-                      Sign out
-                    </Button>
+                    <UserButton afterSignOutUrl="/" />
                   </li>
                 </>
               ) : (
                 <>
                   <li>
                     <Button variant={'ghost'}>
-                      <Link href="/login">🚪 Login</Link>
+                      <Link href="/sign-in">🚪 Login</Link>
                     </Button>
                   </li>
                   <li>
